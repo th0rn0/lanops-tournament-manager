@@ -62,7 +62,7 @@ func loadTestTemplates(t *testing.T) map[string]*template.Template {
 		"roundLabel": func(round, total int, kind string) string {
 			return "Round " + strconv.Itoa(round)
 		},
-		"formatName": func(f string) string { return f },
+		"formatName": func(f models.TournamentFormat) string { return string(f) },
 	}
 
 	tmpls := map[string]*template.Template{}

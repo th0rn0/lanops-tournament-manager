@@ -22,6 +22,7 @@ import (
 	"github.com/th0rn0/lanops-tournament-manager/internal/config"
 	"github.com/th0rn0/lanops-tournament-manager/internal/db"
 	"github.com/th0rn0/lanops-tournament-manager/internal/handlers"
+	"github.com/th0rn0/lanops-tournament-manager/internal/models"
 	"github.com/th0rn0/lanops-tournament-manager/web"
 )
 
@@ -276,16 +277,16 @@ func loadTemplates() (map[string]*template.Template, error) {
 
 	funcs := template.FuncMap{
 		"add": func(a, b int) int { return a + b },
-		"formatName": func(f string) string {
+		"formatName": func(f models.TournamentFormat) string {
 			switch f {
-			case "single_elimination":
+			case models.FormatSingleElim:
 				return "Single Elimination"
-			case "double_elimination":
+			case models.FormatDoubleElim:
 				return "Double Elimination"
-			case "round_robin":
+			case models.FormatRoundRobin:
 				return "Round Robin"
 			default:
-				return f
+				return string(f)
 			}
 		},
 		"dict": func(values ...any) map[string]any {
