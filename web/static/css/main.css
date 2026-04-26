@@ -598,3 +598,7 @@ body.modal-open { overflow: hidden; }
 
 h1 { font-size: 24px; margin-bottom: 8px; }
 h2 { font-size: 18px; }
+
+.site-footer { text-align: center; padding: 24px 16px; margin-top: 48px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 13px; }
+.site-footer a { color: var(--text-muted); text-decoration: underline; }
+.site-footer a:hover { color: var(--accent); }
