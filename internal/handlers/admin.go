@@ -12,15 +12,17 @@ import (
 )
 
 type AdminHandler struct {
-	pool     *pgxpool.Pool
-	tmpls    map[string]*template.Template
-	brokers  *BracketBrokerMap
-	maxParts int
-	devLogin bool
+	pool      *pgxpool.Pool
+	tmpls     map[string]*template.Template
+	brokers   *BracketBrokerMap
+	maxParts  int
+	devLogin  bool
+	announcer Announcer
+	webBase   string
 }
 
-func NewAdminHandler(pool *pgxpool.Pool, tmpls map[string]*template.Template, brokers *BracketBrokerMap, maxParticipants int, devLogin bool) *AdminHandler {
-	return &AdminHandler{pool: pool, tmpls: tmpls, brokers: brokers, maxParts: maxParticipants, devLogin: devLogin}
+func NewAdminHandler(pool *pgxpool.Pool, tmpls map[string]*template.Template, brokers *BracketBrokerMap, maxParticipants int, devLogin bool, announcer Announcer, webBase string) *AdminHandler {
+	return &AdminHandler{pool: pool, tmpls: tmpls, brokers: brokers, maxParts: maxParticipants, devLogin: devLogin, announcer: announcer, webBase: webBase}
 }
 
 // GET /admin
@@ -126,6 +128,10 @@ func (h *AdminHandler) CreateTournament(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	if h.announcer != nil {
+		h.announcer.Announce("📢 **New Tournament: " + name + "** — registration is open!\nJoin now: " + h.webBase + "/tournaments/" + strconv.FormatInt(id, 10))
+	}
+
 	http.Redirect(w, r, "/admin", http.StatusSeeOther)
 }
 
@@ -157,6 +163,12 @@ func (h *AdminHandler) GenerateBracket(w http.ResponseWriter, r *http.Request) {
 
 	// Broadcast update
 	h.brokers.BroadcastBracketUpdate(id)
+
+	if h.announcer != nil {
+		var tName string
+		_ = h.pool.QueryRow(r.Context(), `SELECT name FROM tournaments WHERE id = $1`, id).Scan(&tName)
+		h.announcer.Announce("🏆 **" + tName + "** has started — the bracket is live!\nView: " + h.webBase + "/tournaments/" + strconv.FormatInt(id, 10))
+	}
 
 	http.Redirect(w, r, "/tournaments/"+strconv.FormatInt(id, 10), http.StatusSeeOther)
 }
@@ -304,6 +316,12 @@ func (h *AdminHandler) CompleteTournament(w http.ResponseWriter, r *http.Request
 		UPDATE tournaments SET status = 'completed', updated_at = NOW()
 		WHERE id = $1 AND status = 'active'
 	`, id)
+
+	if h.announcer != nil {
+		var tName string
+		_ = h.pool.QueryRow(r.Context(), `SELECT name FROM tournaments WHERE id = $1`, id).Scan(&tName)
+		h.announcer.Announce("🎉 **" + tName + "** is complete! Check the final standings: " + h.webBase + "/tournaments/" + strconv.FormatInt(id, 10))
+	}
 
 	http.Redirect(w, r, "/tournaments/"+strconv.FormatInt(id, 10), http.StatusSeeOther)
 }

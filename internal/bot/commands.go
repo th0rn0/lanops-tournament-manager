@@ -389,8 +389,11 @@ func (b *Bot) cmdAdminBracketGenerate(s *discordgo.Session, i *discordgo.Interac
 	}
 	_ = bracketID
 
+	var name string
+	_ = b.pool.QueryRow(botCtx(), `SELECT name FROM tournaments WHERE id = $1`, tournamentID).Scan(&name)
+
 	b.broadcaster.BroadcastBracketUpdate(tournamentID)
-	NotifyBracketGenerated(s, b.cfg.DiscordGuildID, tournamentID, b.webBaseURL())
+	NotifyBracketGenerated(s, b.cfg.DiscordAnnouncementChannelID, tournamentID, name, b.webBaseURL())
 	respond(s, i, fmt.Sprintf("Bracket generated for tournament #%d! View: %s/tournaments/%d",
 		tournamentID, b.webBaseURL(), tournamentID))
 }
@@ -414,6 +417,7 @@ func (b *Bot) cmdAdminTournamentCreate(s *discordgo.Session, i *discordgo.Intera
 		return
 	}
 
+	NotifyTournamentCreated(s, b.cfg.DiscordAnnouncementChannelID, id, name, b.webBaseURL())
 	respond(s, i, fmt.Sprintf("Tournament **%s** created (ID: %d). Sign-up link: %s/tournaments/%d",
 		name, id, b.webBaseURL(), id))
 }

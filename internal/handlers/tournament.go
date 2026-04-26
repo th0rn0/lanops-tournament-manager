@@ -13,15 +13,21 @@ import (
 	"github.com/th0rn0/lanops-tournament-manager/internal/tournament"
 )
 
-type TournamentHandler struct {
-	pool     *pgxpool.Pool
-	brokers  *BracketBrokerMap
-	tmpls    map[string]*template.Template
-	maxParts int
+// GuildMemberChecker verifies that a Discord user belongs to the configured guild.
+type GuildMemberChecker interface {
+	IsGuildMember(ctx context.Context, discordUserID string) (bool, error)
 }
 
-func NewTournamentHandler(pool *pgxpool.Pool, brokers *BracketBrokerMap, tmpls map[string]*template.Template, maxParticipants int) *TournamentHandler {
-	return &TournamentHandler{pool: pool, brokers: brokers, tmpls: tmpls, maxParts: maxParticipants}
+type TournamentHandler struct {
+	pool          *pgxpool.Pool
+	brokers       *BracketBrokerMap
+	tmpls         map[string]*template.Template
+	maxParts      int
+	guildChecker  GuildMemberChecker
+}
+
+func NewTournamentHandler(pool *pgxpool.Pool, brokers *BracketBrokerMap, tmpls map[string]*template.Template, maxParticipants int, guildChecker GuildMemberChecker) *TournamentHandler {
+	return &TournamentHandler{pool: pool, brokers: brokers, tmpls: tmpls, maxParts: maxParticipants, guildChecker: guildChecker}
 }
 
 // GET /tournaments
@@ -463,6 +469,23 @@ func (h *TournamentHandler) Join(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		http.Redirect(w, r, "/auth/discord", http.StatusSeeOther)
 		return
+	}
+
+	// Guild membership check: only members of the configured Discord server may join.
+	if h.guildChecker != nil {
+		var discordID string
+		_ = h.pool.QueryRow(r.Context(), `SELECT discord_id FROM users WHERE id = $1`, userID).Scan(&discordID)
+		if discordID != "" {
+			member, err := h.guildChecker.IsGuildMember(r.Context(), discordID)
+			if err != nil {
+				http.Error(w, "could not verify guild membership", http.StatusServiceUnavailable)
+				return
+			}
+			if !member {
+				http.Error(w, "you must be a member of the Discord server to join tournaments", http.StatusForbidden)
+				return
+			}
+		}
 	}
 
 	// Check tournament is in registration

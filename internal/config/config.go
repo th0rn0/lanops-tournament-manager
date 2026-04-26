@@ -17,12 +17,13 @@ type Config struct {
 	DatabaseURL string
 
 	// Discord OAuth2
-	DiscordClientID     string
-	DiscordClientSecret string
-	DiscordRedirectURL  string
-	DiscordBotToken     string
-	DiscordAdminRoleID  string
-	DiscordGuildID      string
+	DiscordClientID              string
+	DiscordClientSecret          string
+	DiscordRedirectURL           string
+	DiscordBotToken              string
+	DiscordAdminRoleID           string
+	DiscordGuildID               string
+	DiscordAnnouncementChannelID string
 
 	// Session
 	SessionSecret string
@@ -50,12 +51,13 @@ func Load() (*Config, error) {
 
 		DatabaseURL: getEnv("DATABASE_URL", ""),
 
-		DiscordClientID:     getEnv("DISCORD_CLIENT_ID", ""),
-		DiscordClientSecret: getEnv("DISCORD_CLIENT_SECRET", ""),
-		DiscordRedirectURL:  getEnv("DISCORD_REDIRECT_URL", ""),
-		DiscordBotToken:     getEnv("DISCORD_BOT_TOKEN", ""),
-		DiscordAdminRoleID:  getEnv("DISCORD_ADMIN_ROLE_ID", ""),
-		DiscordGuildID:      getEnv("DISCORD_GUILD_ID", ""),
+		DiscordClientID:              getEnv("DISCORD_CLIENT_ID", ""),
+		DiscordClientSecret:          getEnv("DISCORD_CLIENT_SECRET", ""),
+		DiscordRedirectURL:           getEnv("DISCORD_REDIRECT_URL", ""),
+		DiscordBotToken:              getEnv("DISCORD_BOT_TOKEN", ""),
+		DiscordAdminRoleID:           getEnv("DISCORD_ADMIN_ROLE_ID", ""),
+		DiscordGuildID:               getEnv("DISCORD_GUILD_ID", ""),
+		DiscordAnnouncementChannelID: getEnv("DISCORD_ANNOUNCEMENT_CHANNEL_ID", ""),
 
 		SessionSecret: getEnv("SESSION_SECRET", ""),
 		CSRFAuthKey:   getEnv("CSRF_AUTH_KEY", ""),

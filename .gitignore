@@ -11,3 +11,4 @@ thournament
 # Test binaries
 *.test
 /server
+.claude

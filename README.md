@@ -170,6 +170,7 @@ make test      # integration tests (requires TEST_DATABASE_URL)
 | `DISCORD_BOT_TOKEN` | yes | Bot token for slash commands + admin role checks |
 | `DISCORD_ADMIN_ROLE_ID` | yes | Role ID that grants admin access |
 | `DISCORD_GUILD_ID` | yes | Guild (server) ID for bot commands |
+| `DISCORD_ANNOUNCEMENT_CHANNEL_ID` | no | Channel ID for bot announcements (new tournament, bracket live, tournament complete) |
 | `SESSION_SECRET` | yes | 64-hex-char random string for cookie signing |
 | `CSRF_AUTH_KEY` | yes | 64-hex-char random string (must be exactly 32 bytes) |
 | `PORT` | no | HTTP port (default `8080`) |

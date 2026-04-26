@@ -96,6 +96,32 @@ func (d *Discord) GetUser(ctx context.Context, token *oauth2.Token) (*DiscordUse
 // IsAdmin checks whether a Discord user has the configured admin role in the guild.
 // Uses the bot token (never expires). Fail-closed: returns false + error if Discord is unreachable.
 // Results cached for 5 minutes per user.
+// IsGuildMember returns true when the user is a member of the configured guild.
+// It returns false (not an error) when the user is simply not in the guild.
+func (d *Discord) IsGuildMember(ctx context.Context, discordUserID string) (bool, error) {
+	url := fmt.Sprintf("%s/guilds/%s/members/%s", discordAPIBase, d.cfg.GuildID, discordUserID)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return false, fmt.Errorf("create request: %w", err)
+	}
+	req.Header.Set("Authorization", "Bot "+d.cfg.BotToken)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return false, fmt.Errorf("discord guild member API unreachable: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		return false, nil
+	}
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return false, fmt.Errorf("discord guild member API returned %d: %s", resp.StatusCode, string(body))
+	}
+	return true, nil
+}
+
 func (d *Discord) IsAdmin(ctx context.Context, discordUserID string) (bool, error) {
 	d.cacheMu.Lock()
 	if entry, ok := d.adminCache[discordUserID]; ok && time.Now().Before(entry.expiresAt) {

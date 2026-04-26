@@ -6,21 +6,39 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// NotifyBracketGenerated posts a public message when a bracket is generated.
-func NotifyBracketGenerated(s *discordgo.Session, guildID string, tournamentID int64, webBase string) {
-	channelID := findGeneralChannel(s, guildID)
+// Announce posts a plain-text message to the configured announcement channel.
+// It is a no-op when no announcement channel ID is configured.
+func (b *Bot) Announce(msg string) {
+	if b.cfg.DiscordAnnouncementChannelID == "" {
+		return
+	}
+	_, _ = b.session.ChannelMessageSend(b.cfg.DiscordAnnouncementChannelID, msg)
+}
+
+// NotifyTournamentCreated posts when a new tournament opens for registration.
+func NotifyTournamentCreated(s *discordgo.Session, channelID string, tournamentID int64, name, webBase string) {
 	if channelID == "" {
 		return
 	}
 	_, _ = s.ChannelMessageSend(channelID, fmt.Sprintf(
-		"🏆 **Bracket Generated!** Tournament #%d is now live.\nView the bracket: %s/tournaments/%d",
-		tournamentID, webBase, tournamentID,
+		"📢 **New Tournament: %s** — registration is open!\nJoin now: %s/tournaments/%d",
+		name, webBase, tournamentID,
+	))
+}
+
+// NotifyBracketGenerated posts when a bracket is generated and the tournament goes live.
+func NotifyBracketGenerated(s *discordgo.Session, channelID string, tournamentID int64, name, webBase string) {
+	if channelID == "" {
+		return
+	}
+	_, _ = s.ChannelMessageSend(channelID, fmt.Sprintf(
+		"🏆 **%s** has started — the bracket is live!\nView: %s/tournaments/%d",
+		name, webBase, tournamentID,
 	))
 }
 
 // NotifyMatchReady posts when a match is ready to be played.
-func NotifyMatchReady(s *discordgo.Session, guildID string, matchID, tournamentID int64, playerA, playerB string, webBase string) {
-	channelID := findGeneralChannel(s, guildID)
+func NotifyMatchReady(s *discordgo.Session, channelID string, matchID, tournamentID int64, playerA, playerB, webBase string) {
 	if channelID == "" {
 		return
 	}
@@ -31,35 +49,12 @@ func NotifyMatchReady(s *discordgo.Session, guildID string, matchID, tournamentI
 }
 
 // NotifyTournamentComplete posts when a tournament ends.
-func NotifyTournamentComplete(s *discordgo.Session, guildID string, tournamentID int64, winnerName, webBase string) {
-	channelID := findGeneralChannel(s, guildID)
+func NotifyTournamentComplete(s *discordgo.Session, channelID string, tournamentID int64, name, webBase string) {
 	if channelID == "" {
 		return
 	}
 	_, _ = s.ChannelMessageSend(channelID, fmt.Sprintf(
-		"🎉 **Tournament #%d Complete!** Winner: **%s**\nFull results: %s/tournaments/%d",
-		tournamentID, winnerName, webBase, tournamentID,
+		"🎉 **%s** is complete! Check the final standings: %s/tournaments/%d",
+		name, webBase, tournamentID,
 	))
-}
-
-// findGeneralChannel returns the first text channel named "general" or the first text channel in the guild.
-func findGeneralChannel(s *discordgo.Session, guildID string) string {
-	channels, err := s.GuildChannels(guildID)
-	if err != nil {
-		return ""
-	}
-
-	var firstText string
-	for _, ch := range channels {
-		if ch.Type != discordgo.ChannelTypeGuildText {
-			continue
-		}
-		if firstText == "" {
-			firstText = ch.ID
-		}
-		if ch.Name == "general" {
-			return ch.ID
-		}
-	}
-	return firstText
 }
