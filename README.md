@@ -23,71 +23,19 @@ Single binary. Postgres. Discord OAuth. Real-time bracket updates via SSE.
 
 ### Tournament List
 
-```
-┌─────────────────────────────────────────────────────────┐
-│ LanOps Tournament Manager  Tournaments   Login with Discord│
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  Summer Championship 2026                               │
-│  single_elimination · registration · 6/8 participants  │
-│  An epic 8-player single elimination tournament.       │
-│                                                         │
-│  Spring Cup                                             │
-│  double_elimination · active · 8/8 participants        │
-│  Double elimination bracket — lose once, stay in.      │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-```
+![Tournament list showing active and registration-open tournaments](web/static/img/screenshots/tournament-list.png)
 
-### Tournament Detail (Registration Open)
+### Tournament Detail (Round Robin with Standings)
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  Summer Championship 2026                               │
-│  single_elimination · registration                      │
-│                                                         │
-│  Registration (6/8)                 [Login to Join]     │
-│  ─────────────────────────────────────────────────────  │
-│  • xXDragonSlayerXx                                     │
-│  • ProGamer99                                           │
-│  • NightOwl42                                           │
-│  • StarPlayer                                           │
-│  • SwiftKnight                                          │
-│  • TurboAce                                             │
-└─────────────────────────────────────────────────────────┘
-```
+![Round robin tournament detail with standings table and match cards](web/static/img/screenshots/tournament-detail.png)
 
 ### Bracket View (Live, Double Elimination)
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  Spring Cup                                             │
-│                                                         │
-│  Bracket                                                │
-│  ─────────────────────────────────────────────────────  │
-│  [WB R1 M1 ✓]  AdminUser vs xXDragonSlayerXx  READY   │
-│  [WB R1 M2  ]  TBD       vs ProGamer99         pending │
-│  [WB R1 M3  ]  TBD       vs NightOwl42         pending │
-│  [WB R1 M4  ]  TBD       vs StarPlayer         pending │
-│  [WB R2 M1  ]  TBD       vs TBD                pending │
-│  [LB R1 M1  ]  TBD       vs TBD                pending │
-│  [Grand Final] TBD       vs TBD                pending │
-└─────────────────────────────────────────────────────────┘
-```
+![Double elimination bracket with winners and losers brackets](web/static/img/screenshots/tournament-bracket.png)
 
 ### Admin Dashboard
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  Admin Dashboard                    [New Tournament]    │
-│  ─────────────────────────────────────────────────────  │
-│  ID  Name                    Format   Status    Parts   │
-│  1   Summer Championship     single   registr.  6/8     │
-│                               [Generate Bracket] [View] │
-│  2   Spring Cup               double   active    8/8    │
-│                               [View] [Cancel]           │
-└─────────────────────────────────────────────────────────┘
-```
+![Admin dashboard with tournament table and action buttons](web/static/img/screenshots/admin-dashboard.png)
 
 ## Architecture
 
