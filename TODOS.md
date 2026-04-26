@@ -66,12 +66,30 @@ DM result submission → creation wizard → role sync.
 
 - [x] **Rename project to `lanops-tournament-manager`** — Go module path updated,
   all import paths renamed, binary renamed, Docker image renamed to
-  `th0rn0/lanops-tournament-manager`, Drone + GHA CI updated. GitHub repo rename
-  still needed (done manually via GitHub settings).
+  `th0rn0/lanops-tournament-manager`. GitHub repo renamed via GitHub settings.
+- [x] **Drone CI** — self-hosted Drone pipeline at `ci.th0rn0.co.uk` replaces
+  GitHub Actions (GHA hit the private-repo free-tier minute cap). Pipeline:
+  lint → test (with Postgres service) → Docker build check → push to Docker Hub
+  on `main` merges.
+- [x] **GitHub Actions removed** — `.github/workflows/ci.yml` deleted (v0.1.1).
 
-## Shipped (this branch, feat/round-robin)
+## Shipped (v0.1.1 — security + CI)
 
-- [x] Dev login gated by DEV_LOGIN, fake-player seeder, LB progression fix,
+- [x] **XSS protection** — all Go templates switched to `html/template`; dev login
+  handler converted from raw string substitution to `html/template`.
+- [x] **Security headers** — CSP, X-Frame-Options, X-Content-Type-Options,
+  Referrer-Policy, Permissions-Policy, HSTS (when `SECURE_COOKIES=true`).
+- [x] **CSP inline scripts** — service worker and admin form scripts moved to
+  external files; CDN scripts carry SRI integrity hashes.
+- [x] **Template buffering** — template errors return HTTP 500 instead of a
+  truncated 200 response.
+- [x] **CODEOWNERS** — `.github/CODEOWNERS` now covers the entire `.github/`
+  directory (not just `workflows/`).
+- [x] Drone CI pipeline live; GitHub Actions removed.
+
+## Shipped (v0.1.0 — feat/round-robin)
+
+- [x] Dev login gated by `DEV_LOGIN`, fake-player seeder, LB progression fix,
   score modal + edit-past-matches, PWA shell, LanOps branding.
 - [x] **Round robin** tournament format — standings table, round-labelled matches,
   `no-connectors` bracket canvas layout.

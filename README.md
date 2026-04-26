@@ -116,19 +116,48 @@ Key design points:
 
 ## Prerequisites
 
-- Go 1.22+
-- PostgreSQL 15+
+- [Docker](https://docs.docker.com/get-docker/) + [Docker Compose](https://docs.docker.com/compose/install/) (recommended path)
+- Go 1.26+ and PostgreSQL 15+ (for manual builds without Docker)
 - A Discord application with OAuth2 + bot token ([discord.com/developers](https://discord.com/developers/applications))
+
+### Install Docker & Docker Compose
+
+**macOS / Windows:** Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) — it bundles Docker Compose.
+
+**Linux (Ubuntu / Debian):**
+```bash
+# Install Docker
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER   # allow running docker without sudo (re-login after)
+
+# Compose is bundled with Docker Engine v2 — verify:
+docker compose version
+```
+
+**Arch / CachyOS:**
+```bash
+sudo pacman -S docker docker-compose
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER
+```
+
+Verify everything is working:
+```bash
+docker run --rm hello-world
+docker compose version
+```
 
 ## Quick Start (Docker)
 
 ```bash
 cp .env.example .env
-# Edit .env with your Discord credentials
+# Edit .env — fill in your Discord credentials (see Discord Setup below)
 docker compose up
 ```
 
 App runs at `http://localhost:8080`.
+
+The first run downloads images and builds the app binary (~1 minute). Subsequent starts are fast.
 
 ## Manual Build
 
@@ -213,7 +242,7 @@ Without `TEST_DATABASE_URL` set, integration tests are skipped cleanly.
 
 The app is a single stateless binary. It runs DB migrations on startup (idempotent via golang-migrate). Suitable for any container environment.
 
-See `Dockerfile` for a multi-stage build. `docker-compose.yml` includes a Postgres 16 service.
+See `Dockerfile` for a multi-stage build (Go 1.26-alpine builder, Alpine runtime). `docker-compose.yml` includes a Postgres 16 service with a health check so the app waits for the database to be ready.
 
 For production:
 - Use a real `DATABASE_URL` with TLS (`sslmode=require`)
@@ -221,4 +250,18 @@ For production:
 - Put a reverse proxy (nginx/Caddy) in front for TLS termination
 - Set `DISCORD_REDIRECT_URL` to your public URL
 - Set `SECURE_COOKIES=true` so session and CSRF cookies carry the `Secure` flag
-- The app automatically sets `Content-Security-Policy`, `X-Frame-Options`, `X-Content-Type-Options`, and `Strict-Transport-Security` headers on every response
+- The app automatically sets `Content-Security-Policy`, `X-Frame-Options`, `X-Content-Type-Options`, and `Strict-Transport-Security` (when `SECURE_COOKIES=true`) headers on every response
+
+## CI / CD
+
+CI runs on a self-hosted [Drone](https://www.drone.io/) server. Every push and pull request runs:
+
+1. `golangci-lint` — static analysis (errcheck, govet, staticcheck, ineffassign, unused)
+2. `go test -race ./...` — integration tests against a live Postgres 16 service
+3. Docker build check (dry-run on PRs)
+
+Merges to `main` additionally push a Docker image to `th0rn0/lanops-tournament-manager` on Docker Hub.
+
+## Contributing
+
+See [TODOS.md](TODOS.md) for the feature backlog and known open work. See [CHANGELOG.md](CHANGELOG.md) for release history.
