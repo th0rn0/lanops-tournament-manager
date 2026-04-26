@@ -107,19 +107,23 @@ func main() {
 		// from one path fail to validate on a different path.
 		csrf.Path("/"),
 	)
-	// gorilla/csrf v1.7.3 forces scheme=https when comparing the request URL
-	// against the Origin header. Over plain HTTP (dev), the browser sends
-	// Origin: http://... which never matches the forced https://..., yielding
-	// "origin invalid". Flagging the request as plaintext tells csrf to use
-	// scheme=http for that comparison.
-	if !cfg.SecureCookies {
-		prev := csrfMiddleware
-		csrfMiddleware = func(h http.Handler) http.Handler {
-			wrapped := prev(h)
-			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				wrapped.ServeHTTP(w, csrf.PlaintextHTTPRequest(r))
-			})
-		}
+	// gorilla/csrf v1.7.3 defaults to scheme=https when comparing the request
+	// URL against the Origin header. Apply PlaintextHTTPRequest (scheme=http)
+	// only when the connection to the app is plain HTTP AND there is no upstream
+	// TLS proxy (X-Forwarded-Proto: https). This covers dev (plain HTTP) without
+	// breaking production deployments behind a TLS-terminating reverse proxy,
+	// where the browser sends Origin: https://... even though the app receives
+	// plain HTTP.
+	prev := csrfMiddleware
+	csrfMiddleware = func(h http.Handler) http.Handler {
+		wrapped := prev(h)
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			req := r
+			if r.TLS == nil && r.Header.Get("X-Forwarded-Proto") != "https" {
+				req = csrf.PlaintextHTTPRequest(r)
+			}
+			wrapped.ServeHTTP(w, req)
+		})
 	}
 
 	// Router
