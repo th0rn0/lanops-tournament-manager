@@ -1,4 +1,0 @@
-# Require owner review for all .github/ changes — covers workflows, CODEOWNERS
-# itself, and any future composite actions. Prevents secrets exfiltration via
-# modified workflows in PRs from compromised contributor accounts.
-/.github/ @th0rn0
