@@ -5,7 +5,7 @@
 {{define "content"}}
 <div class="tournament-header">
     <h1>{{.Tournament.Name}}</h1>
-    <p class="meta">{{if .Tournament.Game}}<span class="meta-game">{{.Tournament.Game}}</span> &middot; {{end}}{{.Tournament.Format}} &middot; {{.Tournament.Status}}</p>
+    <p class="meta">{{if .Tournament.Game}}<span class="meta-game">{{.Tournament.Game}}</span> &middot; {{end}}{{formatName .Tournament.Format}} &middot; {{.Tournament.Status}}</p>
     {{if .Tournament.Description}}<p>{{.Tournament.Description}}</p>{{end}}
 </div>
 

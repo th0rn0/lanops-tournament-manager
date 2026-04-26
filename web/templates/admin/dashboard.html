@@ -24,7 +24,7 @@
     <tr>
         <td>{{.ID}}</td>
         <td><a href="/admin/tournaments/{{.ID}}">{{.Name}}</a></td>
-        <td>{{.Format}}</td>
+        <td>{{formatName .Format}}</td>
         <td><span class="status-badge {{.Status}}">{{.Status}}</span></td>
         <td>{{.ParticipantCount}}/{{.MaxParticipants}}</td>
         <td class="actions">

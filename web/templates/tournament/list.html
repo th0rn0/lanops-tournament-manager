@@ -9,7 +9,7 @@
 <div class="tournament-card">
     <h2><a href="/tournaments/{{.ID}}">{{.Name}}</a></h2>
     <p class="meta">
-        {{if .Game}}<span class="meta-game">{{.Game}}</span> &middot; {{end}}{{.Format}} &middot; {{.Status}}
+        {{if .Game}}<span class="meta-game">{{.Game}}</span> &middot; {{end}}{{formatName .Format}} &middot; {{.Status}}
         &middot; {{.ParticipantCount}}/{{.MaxParticipants}} participants
     </p>
     {{if .Description}}<p>{{.Description}}</p>{{end}}

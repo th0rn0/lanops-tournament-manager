@@ -267,6 +267,18 @@ func loadTemplates() (map[string]*template.Template, error) {
 
 	funcs := template.FuncMap{
 		"add": func(a, b int) int { return a + b },
+		"formatName": func(f string) string {
+			switch f {
+			case "single_elimination":
+				return "Single Elimination"
+			case "double_elimination":
+				return "Double Elimination"
+			case "round_robin":
+				return "Round Robin"
+			default:
+				return f
+			}
+		},
 		"dict": func(values ...any) map[string]any {
 			m := make(map[string]any, len(values)/2)
 			for i := 0; i+1 < len(values); i += 2 {
