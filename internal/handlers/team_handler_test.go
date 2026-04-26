@@ -30,7 +30,7 @@ func setupTeamServer(t *testing.T) *testServer {
 	brokers := handlers.NewBracketBrokerMap()
 
 	authMW := auth.NewMiddlewareWithChecker(store, neverAdmin{})
-	tournamentH := handlers.NewTournamentHandler(pool, brokers, tmpls, 64)
+	tournamentH := handlers.NewTournamentHandler(pool, brokers, tmpls, 64, nil)
 	teamH := handlers.NewTeamHandler(pool, brokers, tmpls)
 
 	r := chi.NewRouter()
